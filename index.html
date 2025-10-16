@@ -4,9 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Data Entry Pro</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
+
+  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Manifest for PWA -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Theme color for mobile browsers -->
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="description" content="Track daily data entry performance with accuracy charts and reports." />
+  
+  <!-- App icons (optional fallback) -->
+  <link rel="icon" href="icons/icon-192.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icons/icon-512.png" />
 </head>
 
 <body class="bg-gray-100 min-h-screen p-6">
@@ -24,7 +35,7 @@
         <input id="records" type="number" placeholder="Records Entered" class="border rounded-lg p-2" />
         <input id="errors" type="number" placeholder="Errors Made" class="border rounded-lg p-2" />
       </div>
-      <button onclick="addRecord()" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+      <button onclick="addRecord()" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
         ➕ Add Record
       </button>
     </div>
@@ -71,21 +82,30 @@
 
     <!-- Actions -->
     <div class="mt-6 flex justify-between">
-      <button onclick="exportCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+      <button onclick="exportCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
         ⬇️ Export CSV
       </button>
-      <button onclick="resetData()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+      <button onclick="resetData()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
         🔄 Reset Data
       </button>
     </div>
   </div>
 
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Main Script -->
   <script src="script.js"></script>
 
+  <!-- PWA Service Worker Registration -->
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./service-worker.js")
+          .then(() => console.log("✅ Service Worker Registered"))
+          .catch(err => console.error("❌ Service Worker Error:", err));
+      });
     }
   </script>
 </body>
