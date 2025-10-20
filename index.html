@@ -1,261 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Data Entry Pro Suite</title>
-
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Manifest -->
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#2563eb" />
-  <meta name="description" content="Data Entry Pro Suite — offline multi-tool for small businesses & data entry pros." />
-
-  <!-- Icons (fallback) -->
-  <link rel="icon" href="icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="icons/icon-512.png" />
-
-  <style>
-    .hidden { display: none; }
-    .tab-btn.active { background: #1e40af; color: white; }
-    .small { font-size: .85rem; }
-  </style>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
-<body class="bg-gray-100 min-h-screen p-6">
-
-  <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h1 class="text-2xl font-bold text-blue-600">📊 Data Entry Pro Suite</h1>
-        <p class="text-sm text-gray-500">Offline toolkit — Data Entry, Expenses, Inventory, Invoices, CRM & KPI</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button id="installBtn" class="px-3 py-1 border rounded text-sm hidden">Install App</button>
-        <button id="refreshCache" class="px-3 py-1 border rounded text-sm">Refresh</button>
-      </div>
+<body>
+  <!-- Welcome Screen -->
+  <div id="welcome-screen" class="screen active">
+    <div class="welcome-box">
+      <h1>Data Entry Pro Suite</h1>
+      <p class="subtitle">Created by Jane Emmanuel</p>
+      <input type="text" id="businessName" placeholder="Enter your name or business name" />
+      <button id="enterApp">Enter Dashboard</button>
     </div>
-
-    <!-- Nav -->
-    <nav class="mb-4">
-      <div id="tabs" class="flex gap-2 flex-wrap">
-        <button class="tab-btn px-3 py-2 rounded border bg-white small" data-tab="tabData">📋 Data Entry</button>
-        <button class="tab-btn px-3 py-2 rounded border bg-white small" data-tab="tabExpense">💰 Expenses</button>
-        <button class="tab-btn px-3 py-2 rounded border bg-white small" data-tab="tabInventory">📦 Inventory</button>
-        <button class="tab-btn px-3 py-2 rounded border bg-white small" data-tab="tabInvoice">🧾 Invoices</button>
-        <button class="tab-btn px-3 py-2 rounded border bg-white small" data-tab="tabCRM">👥 CRM</button>
-        <button class="tab-btn px-3 py-2 rounded border bg-white small" data-tab="tabKPI">📈 KPI</button>
-      </div>
-    </nav>
-
-    <!-- TABS CONTENT -->
-    <section id="tabData" class="tabPanel">
-      <h2 class="text-lg font-semibold mb-2">📋 Data Entry</h2>
-      <div class="bg-blue-50 p-4 rounded mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input id="deDate" type="date" class="p-2 border rounded" />
-          <input id="deProject" placeholder="Project name" class="p-2 border rounded" />
-          <input id="deRecords" type="number" placeholder="Records entered" class="p-2 border rounded" />
-          <input id="deErrors" type="number" placeholder="Errors made" class="p-2 border rounded" />
-        </div>
-        <div class="mt-3 flex gap-2">
-          <button id="addDE" class="bg-blue-600 text-white px-4 py-2 rounded">➕ Add</button>
-          <button id="exportDE" class="bg-green-600 text-white px-4 py-2 rounded">⬇️ Export CSV</button>
-          <button id="resetDE" class="bg-red-500 text-white px-4 py-2 rounded">🔄 Reset</button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto mb-4">
-        <table class="w-full text-sm text-center">
-          <thead class="bg-gray-200"><tr><th>Date</th><th>Project</th><th>Records</th><th>Errors</th><th>Accuracy %</th><th>Actions</th></tr></thead>
-          <tbody id="deBody"></tbody>
-        </table>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div class="p-3 bg-green-50 rounded"><div class="text-xs text-gray-500">Total Records</div><div id="deTotalRecords" class="text-lg font-bold">0</div></div>
-        <div class="p-3 bg-yellow-50 rounded"><div class="text-xs text-gray-500">Total Errors</div><div id="deTotalErrors" class="text-lg font-bold">0</div></div>
-        <div class="p-3 bg-blue-50 rounded"><div class="text-xs text-gray-500">Avg Accuracy</div><div id="deAvgAccuracy" class="text-lg font-bold">0%</div></div>
-        <div class="p-3 bg-purple-50 rounded"><div class="text-xs text-gray-500">Days Logged</div><div id="deDays" class="text-lg font-bold">0</div></div>
-      </div>
-
-      <canvas id="deChart" height="80"></canvas>
-    </section>
-
-    <section id="tabExpense" class="tabPanel hidden">
-      <h2 class="text-lg font-semibold mb-2">💰 Expense Tracker</h2>
-      <div class="bg-blue-50 p-4 rounded mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input id="expDate" type="date" class="p-2 border rounded" />
-          <input id="expDesc" placeholder="Description" class="p-2 border rounded" />
-          <select id="expType" class="p-2 border rounded">
-            <option>Income</option><option>Expense</option>
-          </select>
-          <input id="expAmount" type="number" placeholder="Amount" class="p-2 border rounded" />
-        </div>
-        <div class="mt-3 flex gap-2">
-          <button id="addExp" class="bg-blue-600 text-white px-4 py-2 rounded">➕ Add</button>
-          <button id="exportExp" class="bg-green-600 text-white px-4 py-2 rounded">⬇️ Export CSV</button>
-          <button id="resetExp" class="bg-red-500 text-white px-4 py-2 rounded">🔄 Reset</button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto mb-4">
-        <table class="w-full text-sm text-center">
-          <thead class="bg-gray-200"><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>❌</th></tr></thead>
-          <tbody id="expBody"></tbody>
-        </table>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="p-3 bg-green-50 rounded"><div class="text-xs text-gray-500">Total Income</div><div id="totalIncome" class="text-lg font-bold">0</div></div>
-        <div class="p-3 bg-red-50 rounded"><div class="text-xs text-gray-500">Total Expenses</div><div id="totalExpenses" class="text-lg font-bold">0</div></div>
-        <div class="p-3 bg-yellow-50 rounded"><div class="text-xs text-gray-500">Net Profit</div><div id="netProfit" class="text-lg font-bold">0</div></div>
-      </div>
-    </section>
-
-    <section id="tabInventory" class="tabPanel hidden">
-      <h2 class="text-lg font-semibold mb-2">📦 Inventory Tracker</h2>
-      <div class="bg-blue-50 p-4 rounded mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-          <input id="invName" placeholder="Item name" class="p-2 border rounded" />
-          <input id="invQty" type="number" placeholder="Qty" class="p-2 border rounded" />
-          <input id="invPrice" type="number" placeholder="Unit price" class="p-2 border rounded" />
-          <input id="invLow" type="number" placeholder="Low alert (e.g. 5)" class="p-2 border rounded" />
-          <button id="addInv" class="bg-blue-600 text-white px-4 py-2 rounded">➕ Add</button>
-        </div>
-        <div class="mt-2 text-sm text-gray-500">Set low stock threshold per item (optional)</div>
-      </div>
-
-      <div class="overflow-x-auto mb-4">
-        <table class="w-full text-sm text-center">
-          <thead class="bg-gray-200"><tr><th>Name</th><th>Qty</th><th>Price</th><th>Low</th><th>Value</th><th>❌</th></tr></thead>
-          <tbody id="invBody"></tbody>
-        </table>
-      </div>
-
-      <div class="text-center p-3 bg-yellow-50 rounded mb-4">
-        <div class="text-xs text-gray-500">Total Inventory Value</div>
-        <div id="invTotalValue" class="text-lg font-bold">0</div>
-      </div>
-
-      <div class="flex gap-2">
-        <button id="exportInv" class="bg-green-600 text-white px-4 py-2 rounded">⬇️ Export CSV</button>
-        <button id="resetInv" class="bg-red-500 text-white px-4 py-2 rounded">🔄 Reset</button>
-      </div>
-    </section>
-
-    <section id="tabInvoice" class="tabPanel hidden">
-      <h2 class="text-lg font-semibold mb-2">🧾 Invoice Generator</h2>
-
-      <div class="bg-blue-50 p-4 rounded mb-4">
-        <input id="invClient" placeholder="Client name" class="p-2 border rounded w-full mb-2" />
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input id="itemName" placeholder="Item name" class="p-2 border rounded" />
-          <input id="itemQty" type="number" placeholder="Qty" class="p-2 border rounded" />
-          <input id="itemPrice" type="number" placeholder="Unit price" class="p-2 border rounded" />
-          <button id="addItem" class="bg-blue-600 text-white px-4 py-2 rounded">➕ Add</button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto mb-4">
-        <table class="w-full text-sm text-center">
-          <thead class="bg-gray-200"><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th>❌</th></tr></thead>
-          <tbody id="invoiceBody"></tbody>
-        </table>
-      </div>
-
-      <div class="text-center p-3 bg-green-50 rounded mb-4">
-        <div class="text-xs text-gray-500">Invoice Total</div>
-        <div id="invoiceTotal" class="text-lg font-bold">0</div>
-      </div>
-
-      <div class="flex gap-2">
-        <button id="downloadPDF" class="bg-green-600 text-white px-4 py-2 rounded">📥 Download PDF</button>
-        <button id="exportInvoiceCSV" class="bg-yellow-600 text-white px-4 py-2 rounded">⬇️ Export CSV</button>
-        <button id="resetInvoice" class="bg-red-500 text-white px-4 py-2 rounded">🔄 Reset</button>
-      </div>
-    </section>
-
-    <section id="tabCRM" class="tabPanel hidden">
-      <h2 class="text-lg font-semibold mb-2">👥 Mini CRM</h2>
-      <div class="bg-blue-50 p-4 rounded mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input id="crmName" placeholder="Client name" class="p-2 border rounded" />
-          <input id="crmPhone" placeholder="Phone" class="p-2 border rounded" />
-          <select id="crmStatus" class="p-2 border rounded">
-            <option>New</option><option>Contacted</option><option>Closed</option>
-          </select>
-          <input id="crmNote" placeholder="Note" class="p-2 border rounded" />
-        </div>
-        <div class="mt-2 flex gap-2">
-          <button id="addClient" class="bg-blue-600 text-white px-4 py-2 rounded">➕ Add</button>
-          <button id="exportClients" class="bg-green-600 text-white px-4 py-2 rounded">⬇️ Export CSV</button>
-          <button id="resetClients" class="bg-red-500 text-white px-4 py-2 rounded">🔄 Reset</button>
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <input id="clientSearch" placeholder="Search clients..." class="p-2 border rounded w-full" />
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-center">
-          <thead class="bg-gray-200"><tr><th>Name</th><th>Phone</th><th>Status</th><th>Note</th><th>❌</th></tr></thead>
-          <tbody id="clientsBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="tabKPI" class="tabPanel hidden">
-      <h2 class="text-lg font-semibold mb-2">📈 KPI Dashboard</h2>
-      <div class="bg-blue-50 p-4 rounded mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input id="kpiDate" type="date" class="p-2 border rounded" />
-          <input id="kpiSales" type="number" placeholder="Sales" class="p-2 border rounded" />
-          <input id="kpiProfit" type="number" placeholder="Profit" class="p-2 border rounded" />
-          <input id="kpiNew" type="number" placeholder="New customers" class="p-2 border rounded" />
-        </div>
-        <div class="mt-2 flex gap-2">
-          <button id="addKPI" class="bg-blue-600 text-white px-4 py-2 rounded">➕ Add</button>
-          <button id="exportKPI" class="bg-green-600 text-white px-4 py-2 rounded">⬇️ Export CSV</button>
-        </div>
-      </div>
-
-      <canvas id="kpiChart" height="120"></canvas>
-    </section>
   </div>
 
-  <!-- Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Dashboard Screen -->
+  <div id="dashboard-screen" class="screen hidden">
+    <header>
+      <h2 id="greeting"></h2>
+      <button id="logoutBtn">Logout</button>
+    </header>
 
-  <!-- Main script -->
-  <script src="./script.js"></script>
+    <main class="cards-container">
+      <div class="card" data-module="expense.html">💰 Expense Tracker</div>
+      <div class="card" data-module="inventory.html">📦 Inventory Manager</div>
+      <div class="card" data-module="invoice.html">🧾 Invoice Generator</div>
+      <div class="card" data-module="crm.html">👥 Customer CRM</div>
+      <div class="card" data-module="kpi.html">📈 Business KPI</div>
+      <div class="card" data-module="dataentry.html">🗂️ Data Entry Tracker</div>
+    </main>
 
-  <!-- Service worker registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js').catch(e => console.warn('SW failed', e));
-      });
-    }
+    <footer>
+      <p>Created by Jane Emmanuel</p>
+    </footer>
 
-    // simple install prompt button
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const btn = document.getElementById('installBtn');
-      btn.classList.remove('hidden');
-      btn.addEventListener('click', async () => {
-        btn.classList.add('hidden');
-        deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-      });
-    });
-  </script>
+    <!-- Module Content (loaded dynamically) -->
+    <div id="module-view" class="hidden"></div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
