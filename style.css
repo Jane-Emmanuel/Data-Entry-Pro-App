@@ -1,6 +1,171 @@
-body {
-  font-family: 'Inter', sans-serif;
+/* ================================
+   Data Entry Pro Suite - style.css
+   Pastel Pink Edition by Jane Emmanuel
+   ================================ */
+
+:root {
+  --soft-pink: #ffdce5;
+  --accent-pink: #ffb6c1;
+  --text-dark: #333;
+  --white: #fff;
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --radius: 12px;
+  --transition: 0.3s ease;
 }
+
+body {
+  font-family: "Poppins", Arial, sans-serif;
+  background: var(--soft-pink);
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  color: var(--text-dark);
+}
+
 button {
-  transition: all 0.2s ease-in-out;
+  background: var(--accent-pink);
+  color: var(--white);
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 15px;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+button:hover {
+  background: #ff9eb3;
+  transform: scale(1.05);
+}
+
+/* ===== Welcome Screen ===== */
+.welcome-screen {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 40px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.welcome-screen h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.welcome-screen input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  margin-top: 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ===== Dashboard ===== */
+.dashboard {
+  text-align: center;
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  padding: 15px 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: linear-gradient(145deg, #ffe5ec, #fff0f4);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+/* ===== Module View ===== */
+.module-view {
+  background: var(--white);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 1000px;
+  margin: 20px auto;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+table th {
+  background-color: var(--accent-pink);
+  color: var(--white);
+}
+
+.module-buttons {
+  margin-top: 15px;
+  text-align: right;
+}
+
+footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
