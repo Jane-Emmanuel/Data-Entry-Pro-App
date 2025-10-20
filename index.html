@@ -1,47 +1,97 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Data Entry Pro Suite</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Data Entry Pro Suite — Demo & Unlock</title>
+
   <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- libs (for invoice PDF / charts inside modules) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <!-- Welcome Screen -->
-  <div id="welcome-screen" class="screen active">
-    <div class="welcome-box">
+
+  <!-- WELCOME -->
+  <main id="root" class="container">
+    <section id="welcome" class="card">
       <h1>Data Entry Pro Suite</h1>
-      <p class="subtitle">Created by Jane Emmanuel</p>
-      <input type="text" id="businessName" placeholder="Enter your name or business name" />
-      <button id="enterApp">Enter Dashboard</button>
+      <p class="muted">Created by Jane Emmanuel — Pastel Pink Edition</p>
+
+      <div class="form-row">
+        <input id="businessName" placeholder="Enter your name or business name" />
+        <div class="row-buttons">
+          <button id="enterBtn" class="btn primary">Enter Dashboard</button>
+          <button id="demoBtn" class="btn">Watch Demo</button>
+        </div>
+        <p class="tip">Tip: after watching demo you can unlock the full app for just <strong>$1 / ₦1000</strong> — cheaper than coffee ☕</p>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="card hidden">
+      <header class="topbar">
+        <div>
+          <h2 id="greeting">👋 Welcome!</h2>
+          <p class="muted">Offline toolkit — Expenses, Inventory, Invoices, CRM & KPI</p>
+        </div>
+        <div class="top-actions">
+          <button id="unlockBtn" class="btn">Unlock</button>
+          <button id="logout" class="btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="cards" id="cardsArea">
+        <div class="card tool" data-mod="dataentry">🗂️ Data Entry Tracker<br/><small class="muted">Input & report</small></div>
+        <div class="card tool" data-mod="expenses">💰 Expense Tracker<br/><small class="muted">Income & expenses</small></div>
+        <div class="card tool" data-mod="inventory">📦 Inventory Manager<br/><small class="muted">Stock & low alerts</small></div>
+        <div class="card tool" data-mod="invoice">🧾 Invoice Generator<br/><small class="muted">Create & download</small></div>
+        <div class="card tool" data-mod="crm">👥 Customer CRM<br/><small class="muted">Clients & notes</small></div>
+        <div class="card tool" data-mod="kpi">📈 KPI Dashboard<br/><small class="muted">Sales & growth</small></div>
+      </section>
+
+      <div id="toolArea" style="margin-top:18px"></div>
+      <footer class="footer">Created by Jane Emmanuel</footer>
+    </section>
+  </main>
+
+  <!-- PAYWALL (hidden) -->
+  <div id="paywall" class="overlay hidden">
+    <div class="paywall-box">
+      <h3>✨ Unlock Data Entry Pro — Lifetime Access</h3>
+      <p class="muted">Just $1 or ₦1000 — cheaper than coffee ☕</p>
+
+      <div class="device-box">
+        <div class="small muted">Your Device ID</div>
+        <div id="deviceId" class="device-id">XXXXXX</div>
+      </div>
+
+      <a id="selarBtn" class="btn primary" href="https://selar.com/showlove/jane-emmanuel" target="_blank" rel="noopener">💳 Pay on Selar</a>
+
+      <p class="muted small" style="margin-top:10px">
+        Can't pay via Selar? <a href="https://wa.me/2348108179570" target="_blank" rel="noopener">Chat with us on WhatsApp</a> for alternate payment options.
+      </p>
+
+      <div class="password-section">
+        <input id="accessPassword" placeholder="Enter password you received after payment" />
+        <div style="display:flex;gap:8px;margin-top:8px;justify-content:center">
+          <button id="verifyPassword" class="btn">Verify Code</button>
+          <button id="closePaywall" class="btn">Close</button>
+        </div>
+        <p id="passwordMessage" class="muted small"></p>
+      </div>
     </div>
   </div>
 
-  <!-- Dashboard Screen -->
-  <div id="dashboard-screen" class="screen hidden">
-    <header>
-      <h2 id="greeting"></h2>
-      <button id="logoutBtn">Logout</button>
-    </header>
+  <!-- DEMO OVERLAY will be injected by script when needed -->
 
-    <main class="cards-container">
-      <div class="card" data-module="expense.html">💰 Expense Tracker</div>
-      <div class="card" data-module="inventory.html">📦 Inventory Manager</div>
-      <div class="card" data-module="invoice.html">🧾 Invoice Generator</div>
-      <div class="card" data-module="crm.html">👥 Customer CRM</div>
-      <div class="card" data-module="kpi.html">📈 Business KPI</div>
-      <div class="card" data-module="dataentry.html">🗂️ Data Entry Tracker</div>
-    </main>
+  <!-- small audio (if you want to replace, put chime.mp3 and click.mp3 inside /sounds/) -->
+  <audio id="audioClick" preload="auto"></audio>
+  <audio id="audioChime" preload="auto"></audio>
 
-    <footer>
-      <p>Created by Jane Emmanuel</p>
-    </footer>
-
-    <!-- Module Content (loaded dynamically) -->
-    <div id="module-view" class="hidden"></div>
-  </div>
-
+  <!-- Main script (all logic: demo, module loader, paywall) -->
   <script src="script.js"></script>
 </body>
 </html>
