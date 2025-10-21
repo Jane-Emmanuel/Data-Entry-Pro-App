@@ -102,48 +102,37 @@ async function loadModule(modFile){
   }
 }
 
-// ----------------- Demo flow (45s) -----------------
-const demoModules = [
-  { name: "Expense Tracker", file: "expenses.html" },
-  { name: "Inventory Manager", file: "inventory.html" },
-  { name: "Invoice Generator", file: "invoice.html" },
-  { name: "Customer CRM", file: "crm.html" },
-  { name: "Business KPI", file: "kpi.html" },
-  { name: "Data Entry Tracker", file: "dataentry.html" }
-];
+async function startDemo() {
+  const demoModules = [
+    { name: "Expense Tracker", file: "expense.html" },
+    { name: "Inventory Manager", file: "inventory.html" },
+    { name: "Invoice Generator", file: "invoice.html" },
+    { name: "Customer CRM", file: "crm.html" },
+    { name: "Business KPI", file: "kpi.html" },
+    { name: "Data Entry Tracker", file: "dataentry.html" }
+  ];
 
-let demoCanceled = false;
-async function startDemo(){
-  // show overlay
-  const overlay = document.createElement('div');
-  overlay.id = 'demoOverlay';
-  overlay.innerHTML = `<div class="demoBox"><h2>👋 Quick Demo (45s)</h2><p class="muted">Sit back — we'll show the 6 main tools.</p><div style="margin-top:12px"><button id="cancelDemo" class="btn">Cancel Demo</button></div></div>`;
-  document.body.appendChild(overlay);
-  document.getElementById('cancelDemo').addEventListener('click', ()=> { demoCanceled = true; overlay.remove(); });
+  let currentIndex = 0;
+  const display = document.getElementById("demoDisplay");
+  display.innerText = "Starting Demo...";
 
-  audioClick.play().catch(()=>{});
-  // run each module ~7s (last one 10s)
-  for(let i=0;i<demoModules.length && !demoCanceled;i++){
-    const step = demoModules[i];
-    // load module
-    await loadModule(step.file);
-    // give it a small time to render, then "auto-fill" some fields if present
-    await sleep(500);
-    runDemoFill(step.file);
-    audioChime.play().catch(()=>{});
-    // wait (use different times: last one longer)
-    await sleep( (i === demoModules.length-1) ? 10000 : 7000 );
-  }
-
-  if(!demoCanceled){
-    // remove overlay content and show end screen
-    const end = document.getElementById('demoOverlay');
-    if(end){
-      end.innerHTML = `<div class="demoBox end"><h2>🚪 Gate Time!</h2><p>This could be <b>you</b> — but first, unlock full access 😄</p><p class="muted">Just $1 or ₦1000 — cheaper than coffee!</p><div style="margin-top:12px"><button id="unlockNow" class="btn primary">Unlock App</button></div></div>`;
-      document.getElementById('unlockNow').addEventListener('click', ()=> { end.remove(); showPaywall(); });
+  for (const step of demoModules) {
+    try {
+      const res = await fetch(`modules/${step.file}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const html = await res.text();
+      display.innerHTML = html;
+      console.log("Loaded:", step.file);
+    } catch (err) {
+      console.error("Error loading:", step.file, err);
+      display.innerText = `Error loading ${step.name}. Check console for details.`;
+      break;
     }
-    localStorage.setItem('dep_demoWatched','true');
+
+    await new Promise(r => setTimeout(r, 7000)); // 7s per module ~45s total
   }
+
+  display.innerText = "Demo complete!";
 }
 
 // small helper
