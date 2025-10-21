@@ -1,49 +1,220 @@
-<div class="module-card">
-  <h3>💰 Expense Tracker</h3>
-  <div class="form-row">
-    <input id="ex_date" type="date" />
-    <input id="ex_desc" placeholder="Description" />
-    <select id="ex_type"><option>Income</option><option>Expense</option></select>
-    <input id="ex_amount" type="number" placeholder="Amount" />
-    <button id="addExp" class="btn">➕ Add</button>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Entry Pro App</title>
+  <style>
+    :root {
+      --pink: #ff5faf;
+      --green: #36d399;
+      --blue: #4f46e5;
+      --dark: #0f172a;
+      --light: #f8fafc;
+    }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, var(--light), var(--pink), var(--blue), var(--green));
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--dark);
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-  <div class="table-wrap">
-    <table id="expensesTable"><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Action</th></tr></thead><tbody id="expBody"></tbody></table>
-  </div>
+    header {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--light);
+      background: var(--dark);
+      border-bottom: 4px solid var(--pink);
+    }
 
-  <div class="module-actions">
-    <button id="exportExp" class="btn">⬇️ Export CSV</button>
-    <button id="resetExp" class="btn">🔄 Reset</button>
-  </div>
-</div>
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
 
-<script>
-  // init for expenses
-  (function init_expenses(){
-    const body = document.getElementById('expBody');
-    const tableId = 'expensesTable';
-    let items = JSON.parse(localStorage.getItem('mod_expenses')||'[]');
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 2rem;
+      gap: 2rem;
+    }
 
-    function render(){ body.innerHTML = items.map((it, i)=>`<tr><td>${it.date}</td><td>${it.desc}</td><td>${it.type}</td><td>${it.amount}</td><td><button onclick="deleteExp(${i})">Delete</button></td></tr>`).join(''); }
+    .module-card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 360px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .module-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
 
-    window.deleteExp = function(i){ items.splice(i,1); saveRender(); }
-    function saveRender(){ localStorage.setItem('mod_expenses', JSON.stringify(items)); render(); }
+    h3 {
+      text-align: center;
+      color: var(--blue);
+      margin-bottom: 1rem;
+    }
 
-    document.getElementById('addExp').addEventListener('click', ()=>{
-      const d=document.getElementById('ex_date').value, desc=document.getElementById('ex_desc').value, type=document.getElementById('ex_type').value, amt=document.getElementById('ex_amount').value;
-      if(!d||!desc||!amt) return alert('Fill fields');
-      items.push({date:d,desc:desc,type:type,amount:amt});
-      saveRender();
-    });
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
 
-    document.getElementById('exportExp').addEventListener('click', ()=>{
-      if(!items.length) return alert('No data');
-      const csv = 'Date,Description,Type,Amount\n' + items.map(i=>`${i.date},${i.desc},${i.type},${i.amount}`).join('\n');
-      const blob = new Blob([csv],{type:'text/csv'}), a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='expenses.csv'; a.click();
-    });
+    input, select {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ddd;
+      font-size: 0.9rem;
+    }
 
-    document.getElementById('resetExp').addEventListener('click', ()=>{ if(confirm('Reset expenses?')){ items=[]; saveRender(); }});
-    render();
-  })();
-</script>
+    .btn {
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--green);
+      color: var(--dark);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+    }
+
+    th {
+      background: var(--pink);
+      color: white;
+    }
+
+    .module-actions {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: var(--light);
+      background: var(--dark);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Data Entry Pro App 💼</h1>
+  </header>
+
+  <main>
+    <!-- 💰 Expense Tracker -->
+    <div class="module-card">
+      <h3>💰 Expense Tracker</h3>
+      <div class="form-row">
+        <input id="ex_date" type="date" />
+        <input id="ex_desc" placeholder="Description" />
+        <select id="ex_type">
+          <option>Income</option>
+          <option>Expense</option>
+        </select>
+        <input id="ex_amount" type="number" placeholder="Amount" />
+        <button id="addExp" class="btn">➕ Add</button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="expensesTable">
+          <thead>
+            <tr>
+              <th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="expBody"></tbody>
+        </table>
+      </div>
+
+      <div class="module-actions">
+        <button id="exportExp" class="btn">⬇️ Export CSV</button>
+        <button id="resetExp" class="btn">🔄 Reset</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2025 Data Entry Pro by Jane Emmanuel</footer>
+
+  <script>
+    // init for expenses
+    (function init_expenses(){
+      const body = document.getElementById('expBody');
+      let items = JSON.parse(localStorage.getItem('mod_expenses')||'[]');
+
+      function render(){ 
+        body.innerHTML = items.map((it, i)=>`
+          <tr>
+            <td>${it.date}</td>
+            <td>${it.desc}</td>
+            <td>${it.type}</td>
+            <td>${it.amount}</td>
+            <td><button onclick="deleteExp(${i})" class='btn'>🗑</button></td>
+          </tr>`).join(''); 
+      }
+
+      window.deleteExp = function(i){ items.splice(i,1); saveRender(); }
+      function saveRender(){ localStorage.setItem('mod_expenses', JSON.stringify(items)); render(); }
+
+      document.getElementById('addExp').addEventListener('click', ()=>{
+        const d=document.getElementById('ex_date').value, 
+              desc=document.getElementById('ex_desc').value, 
+              type=document.getElementById('ex_type').value, 
+              amt=document.getElementById('ex_amount').value;
+        if(!d||!desc||!amt) return alert('Please fill all fields');
+        items.push({date:d,desc:desc,type:type,amount:amt});
+        saveRender();
+      });
+
+      document.getElementById('exportExp').addEventListener('click', ()=>{
+        alert('🔒 Export feature is locked! Please unlock full access.');
+      });
+
+      document.getElementById('resetExp').addEventListener('click', ()=>{
+        if(confirm('Reset all expenses?')){
+          items=[];
+          saveRender();
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
