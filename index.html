@@ -8,10 +8,11 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
 
-  <!-- External libs (for charts, invoices) -->
+  <!-- External libs (for charts, invoices, etc.) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
+
 <body>
 
   <!-- ========== WELCOME SCREEN ========== -->
@@ -26,7 +27,7 @@
           <button id="enterBtn" class="btn primary">Enter Dashboard</button>
           <button id="demoBtn" class="btn">Watch Demo</button>
         </div>
-        <p class="tip">Tip: after watching demo you can unlock the full app for just <strong>$1 / ₦1000</strong> — cheaper than coffee ☕</p>
+        <p class="tip">Tip: after watching the demo, unlock the full app for just <strong>$1 / ₦1000</strong> — cheaper than coffee ☕</p>
       </div>
     </section>
 
@@ -51,6 +52,9 @@
         <div class="card tool" data-mod="crm">👥 Customer CRM<br/><small class="muted">Clients & notes</small></div>
         <div class="card tool" data-mod="kpi">📈 KPI Dashboard<br/><small class="muted">Sales & growth</small></div>
       </section>
+
+      <!-- Demo display area -->
+      <div id="demoDisplay" class="card hidden"></div>
 
       <div id="toolArea" style="margin-top:18px"></div>
       <footer class="footer">Created by Jane Emmanuel</footer>
@@ -85,117 +89,11 @@
     </div>
   </div>
 
-  <!-- DEMO OVERLAY (injected dynamically) -->
-  <audio id="audioClick" preload="auto"></audio>
-  <audio id="audioChime" preload="auto"></audio>
+  <!-- Sound Effects -->
+  <audio id="clickSound" src="sounds/click.mp3" preload="auto"></audio>
+  <audio id="chimeSound" src="sounds/chime.mp3" preload="auto"></audio>
 
-  <!-- ========== MAIN SCRIPTS ========== -->
+  <!-- ========== MAIN SCRIPT ========== -->
   <script src="script.js"></script>
-
-  <!-- ========== DEMO SEQUENCE LOGIC ========== -->
-  <script>
-  // ================================
-  // Data Entry Pro Suite - Auto Demo
-  // ================================
-
-  const demoModules = [
-    { name: "💰 Expense Tracker", file: "expense.html" },
-    { name: "📦 Inventory Manager", file: "inventory.html" },
-    { name: "🧾 Invoice Generator", file: "invoice.html" },
-    { name: "👥 Customer CRM", file: "crm.html" },
-    { name: "📈 Business KPI", file: "kpi.html" },
-    { name: "🗂️ Data Entry Tracker", file: "dataentry.html" },
-  ];
-
-  const DEMO_DURATION = 7000;
-  const clickSound = new Audio("sounds/click.mp3");
-  const chimeSound = new Audio("sounds/chime.mp3");
-
-  document.getElementById("demoBtn").addEventListener("click", startDemo);
-
-  function startDemo() {
-    const demoOverlay = document.createElement("div");
-    demoOverlay.id = "demoOverlay";
-    demoOverlay.innerHTML = `
-      <div class="demoBox fade-in">
-        <h2>👋 Welcome!</h2>
-        <p>Watch how <b>Data Entry Pro Suite</b> makes business fun & easy ✨</p>
-        <p class="demoTip">Sit tight — quick 45-second tour starting...</p>
-      </div>
-    `;
-    document.body.appendChild(demoOverlay);
-
-    let i = 0;
-    setTimeout(runNextDemo, 2000);
-
-    function runNextDemo() {
-      if (i >= demoModules.length) {
-        finishDemo();
-        return;
-      }
-
-      const module = demoModules[i];
-      clickSound.play();
-
-      demoOverlay.querySelector(".demoBox").innerHTML = `
-        <h2>${module.name}</h2>
-        <p>Auto-filling sample data for ${module.name.split(" ")[1]}...</p>
-      `;
-
-      fetch(`modules/${module.file}`)
-        .then(res => res.text())
-        .then(html => {
-          const view = document.getElementById("toolArea");
-          view.innerHTML = html;
-          view.classList.remove("hidden");
-          fakeTyping(view);
-          chimeSound.play();
-        });
-
-      i++;
-      setTimeout(runNextDemo, DEMO_DURATION);
-    }
-  }
-
-  function fakeTyping(view) {
-    const tds = view.querySelectorAll("td");
-    let idx = 0;
-    const interval = setInterval(() => {
-      if (idx >= tds.length) {
-        clearInterval(interval);
-        return;
-      }
-      tds[idx].innerText = sampleText();
-      idx++;
-    }, 150);
-  }
-
-  function sampleText() {
-    const samples = [
-      "John Doe", "₦2,500", "Pending", "Completed",
-      "12/10/2025", "Product A", "Client Z", "Mary Ltd",
-      "Profit ↑", "Expense ↓", "New Order", "Paid ✅"
-    ];
-    return samples[Math.floor(Math.random() * samples.length)];
-  }
-
-  function finishDemo() {
-    const demoOverlay = document.getElementById("demoOverlay");
-    demoOverlay.innerHTML = `
-      <div class="demoBox fade-in end">
-        <h2>🚪 Gate Time!</h2>
-        <p>This could be <b>you</b> — but first, unlock full access 😄</p>
-        <p class="demoTip">Just $1 or ₦1000 — cheaper than coffee ☕</p>
-        <button id="unlockNow" class="btn">Unlock App</button>
-      </div>
-    `;
-    demoOverlay.querySelector("#unlockNow").addEventListener("click", showPaywall);
-  }
-
-  function showPaywall() {
-    document.getElementById("paywall").classList.remove("hidden");
-    document.getElementById("demoOverlay").remove();
-  }
-  </script>
 </body>
 </html>
