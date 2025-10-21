@@ -1,193 +1,73 @@
-// ===============================
-// DATA ENTRY PRO SUITE SCRIPT.JS
-// ===============================
-
-// Elements
-const welcome = document.getElementById("welcome");
-const dashboard = document.getElementById("dashboard");
-const demoBtn = document.getElementById("demoBtn");
+// Simple screen switcher
 const enterBtn = document.getElementById("enterBtn");
-const businessName = document.getElementById("businessName");
-const greeting = document.getElementById("greeting");
 const logout = document.getElementById("logout");
 const unlockBtn = document.getElementById("unlockBtn");
 const paywall = document.getElementById("paywall");
-const verifyPassword = document.getElementById("verifyPassword");
-const accessPassword = document.getElementById("accessPassword");
-const passwordMessage = document.getElementById("passwordMessage");
-const deviceIdDisplay = document.getElementById("deviceId");
+const verifyBtn = document.getElementById("verifyPassword");
 const closePaywall = document.getElementById("closePaywall");
-const demoDisplay = document.getElementById("demoDisplay");
+const passwordMessage = document.getElementById("passwordMessage");
+const toolArea = document.getElementById("toolArea");
+const businessName = document.getElementById("businessName");
+const greeting = document.getElementById("greeting");
+let unlocked = false;
 
-const clickSound = document.getElementById("clickSound");
-const chimeSound = document.getElementById("chimeSound");
-
-// ===============================
-// HELPER FUNCTIONS
-// ===============================
-
-// Play short click or chime
-function playSound(type = "click") {
-  const audio = type === "chime" ? chimeSound : clickSound;
-  if (audio) {
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  }
-}
-
-// Show or hide elements
-function show(el) {
-  el.classList.remove("hidden");
-}
-function hide(el) {
-  el.classList.add("hidden");
-}
-
-// Generate or load device ID
-function getDeviceId() {
-  let id = localStorage.getItem("deviceId");
-  if (!id) {
-    id = Math.random().toString(36).substring(2, 10).toUpperCase();
-    localStorage.setItem("deviceId", id);
-  }
-  return id;
-}
-
-// Load current password
-async function fetchCurrentPassword() {
-  try {
-    const res = await fetch("current_password.txt");
-    return (await res.text()).trim();
-  } catch {
-    return "demo123"; // fallback
-  }
-}
-
-// ===============================
-// LOGIN / LOGOUT
-// ===============================
+// Enter dashboard
 enterBtn.addEventListener("click", () => {
-  const name = businessName.value.trim();
-  if (!name) {
-    alert("Please enter your name or business name.");
-    return;
+  document.getElementById("welcome").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  greeting.textContent = `👋 Welcome, ${businessName.value || "User"}!`;
+});
+
+// Logout
+logout.addEventListener("click", () => location.reload());
+
+// Unlock popup
+unlockBtn.addEventListener("click", () => {
+  document.getElementById("deviceId").textContent = generateDeviceId();
+  paywall.classList.remove("hidden");
+});
+closePaywall.addEventListener("click", () => paywall.classList.add("hidden"));
+
+// Verify code
+verifyBtn.addEventListener("click", () => {
+  const code = document.getElementById("accessPassword").value.trim();
+  if (code === "DATA1000") {
+    unlocked = true;
+    paywall.classList.add("hidden");
+    alert("✅ Access granted — enjoy Pro mode!");
+  } else {
+    passwordMessage.textContent = "❌ Invalid code, please try again.";
   }
-  localStorage.setItem("businessName", name);
-  greeting.textContent = `👋 Welcome, ${name}!`;
-  playSound("click");
-  hide(welcome);
-  show(dashboard);
 });
 
-logout.addEventListener("click", () => {
-  playSound("click");
-  localStorage.clear();
-  show(welcome);
-  hide(dashboard);
-});
-
-// Restore session
-const savedName = localStorage.getItem("businessName");
-if (savedName) {
-  greeting.textContent = `👋 Welcome, ${savedName}!`;
-  hide(welcome);
-  show(dashboard);
+// Generate simple device ID
+function generateDeviceId() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-// ===============================
-// DEMO SWITCHER
-// ===============================
-const modules = [
-  { id: "dataentry", title: "🗂️ Data Entry Tracker" },
-  { id: "expenses", title: "💰 Expense Tracker" },
-  { id: "inventory", title: "📦 Inventory Manager" },
-  { id: "invoice", title: "🧾 Invoice Generator" },
-  { id: "crm", title: "👥 Customer CRM" },
-  { id: "kpi", title: "📈 KPI Dashboard" },
-];
+// Tool switching
+document.querySelectorAll(".tool").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const mod = btn.dataset.mod;
+    const res = await fetch(`modules/${mod}.html`);
+    const html = await res.text();
+    toolArea.innerHTML = html;
 
-let demoRunning = false;
-let demoTimer = null;
-
-demoBtn.addEventListener("click", async () => {
-  if (demoRunning) return;
-  demoRunning = true;
-  playSound("chime");
-  show(demoDisplay);
-  demoDisplay.innerHTML = `<p class="muted">🎬 Starting demo...</p>`;
-
-  for (let i = 0; i < modules.length; i++) {
-    const mod = modules[i];
-    playSound("click");
-    demoDisplay.innerHTML = `
-      <div class="demo-card">
-        <h3>${mod.title}</h3>
-        <p class="muted small">Loading ${mod.id}.html...</p>
-      </div>
-    `;
-    try {
-      const html = await fetch(`modules/${mod.id}.html`).then((r) => r.text());
-      demoDisplay.innerHTML = `<div class="demo-card">${html}</div>`;
-      playSound("chime");
-    } catch (e) {
-      demoDisplay.innerHTML = `<div class="demo-card"><p>⚠️ Unable to load ${mod.id}.html</p></div>`;
-    }
-    await new Promise((r) => setTimeout(r, 45000)); // 45 seconds per module
-  }
-
-  demoDisplay.innerHTML = `
-    <div class="demo-card center">
-      <h3>✨ Demo Complete!</h3>
-      <p class="muted">Ready to unlock full access?</p>
-      <button id="demoUnlock" class="btn primary">Unlock Now</button>
-    </div>
-  `;
-  playSound("chime");
-  demoRunning = false;
-
-  // Add listener for unlock button after demo
-  document.getElementById("demoUnlock").addEventListener("click", () => {
-    openPaywall();
+    // Intercept export/download actions
+    interceptExportButtons(toolArea);
   });
 });
 
-// ===============================
-// PAYWALL & PASSWORD CHECK
-// ===============================
-function openPaywall() {
-  playSound("click");
-  show(paywall);
-  deviceIdDisplay.textContent = getDeviceId();
-}
-
-function closePaywallBox() {
-  playSound("click");
-  hide(paywall);
-}
-
-unlockBtn.addEventListener("click", openPaywall);
-closePaywall.addEventListener("click", closePaywallBox);
-
-verifyPassword.addEventListener("click", async () => {
-  const entered = accessPassword.value.trim();
-  const real = await fetchCurrentPassword();
-  if (entered === real) {
-    localStorage.setItem("unlocked", "true");
-    passwordMessage.textContent = "✅ Verified! Full access granted.";
-    passwordMessage.style.color = "green";
-    playSound("chime");
-    setTimeout(() => {
-      hide(paywall);
-    }, 1200);
-  } else {
-    passwordMessage.textContent = "❌ Invalid password. Please check again.";
-    passwordMessage.style.color = "red";
-    playSound("click");
-  }
-});
-
-// Auto-unlock if previously verified
-if (localStorage.getItem("unlocked") === "true") {
-  unlockBtn.textContent = "Unlocked ✅";
-  unlockBtn.disabled = true;
+function interceptExportButtons(area) {
+  const exportBtns = area.querySelectorAll("button, a");
+  exportBtns.forEach(b => {
+    if (b.textContent.match(/download|export|pdf|invoice|report/i)) {
+      b.addEventListener("click", e => {
+        if (!unlocked) {
+          e.preventDefault();
+          paywall.classList.remove("hidden");
+        }
+      });
+    }
+  });
 }
