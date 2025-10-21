@@ -1,0 +1,39 @@
+<div class="module-card">
+  <h3>👥 Mini CRM</h3>
+  <div class="form-row">
+    <input id="c_name" placeholder="Client name" />
+    <input id="c_phone" placeholder="Phone" />
+    <select id="c_status"><option>New</option><option>Contacted</option><option>Closed</option></select>
+    <input id="c_note" placeholder="Note" />
+    <button id="addClient" class="btn">➕ Add</button>
+  </div>
+
+  <input id="clientSearch" placeholder="Search clients..." style="width:100%;margin-top:10px"/>
+
+  <table id="clientsTable"><thead><tr><th>Name</th><th>Phone</th><th>Status</th><th>Note</th><th>Action</th></tr></thead><tbody id="clientsBody"></tbody></table>
+
+  <div class="module-actions">
+    <button id="exportClients" class="btn">⬇️ Export CSV</button>
+    <button id="resetClients" class="btn">🔄 Reset</button>
+  </div>
+</div>
+
+<script>
+(function init_crm(){
+  let clients = JSON.parse(localStorage.getItem('mod_clients')||'[]');
+  const body = document.getElementById('clientsBody');
+
+  function render(){ body.innerHTML = clients.map((c,i)=>`<tr><td>${c.name}</td><td>${c.phone}</td><td>${c.status}</td><td>${c.note}</td><td><button onclick="delClient(${i})">Delete</button></td></tr>`).join(''); }
+  window.delClient = function(i){ clients.splice(i,1); save(); }
+  function save(){ localStorage.setItem('mod_clients',JSON.stringify(clients)); render(); }
+
+  document.getElementById('addClient').addEventListener('click', ()=>{ const n=document.getElementById('c_name').value, p=document.getElementById('c_phone').value, s=document.getElementById('c_status').value, note=document.getElementById('c_note').value; if(!n) return alert('Name'); clients.push({name:n,phone:p,status:s,note:note}); save(); });
+
+  document.getElementById('clientSearch').addEventListener('input', (e)=>{ const q=e.target.value.toLowerCase(); body.querySelectorAll('tr').forEach(tr=>{ tr.style.display = q ? (tr.innerText.toLowerCase().includes(q) ? '' : 'none') : ''; }); });
+
+  document.getElementById('exportClients').addEventListener('click', ()=>{ if(!clients.length) return alert('No clients'); const csv='Name,Phone,Status,Note\\n'+clients.map(c=>`${c.name},${c.phone},${c.status},${c.note}`).join('\\n'); const b=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='clients.csv'; a.click(); });
+
+  document.getElementById('resetClients').addEventListener('click', ()=>{ if(confirm('Reset clients?')){ clients=[]; save(); }});
+  render();
+})();
+</script>

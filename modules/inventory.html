@@ -1,0 +1,34 @@
+<div class="module-card">
+  <h3>📦 Inventory Manager</h3>
+  <div class="form-row">
+    <input id="inv_name" placeholder="Item name" />
+    <input id="inv_qty" type="number" placeholder="Qty" />
+    <input id="inv_price" type="number" placeholder="Unit price" />
+    <input id="inv_low" type="number" placeholder="Low alert (e.g. 5)" />
+    <button id="addInv" class="btn">➕ Add</button>
+  </div>
+
+  <div class="table-wrap">
+    <table id="invTable"><thead><tr><th>Name</th><th>Qty</th><th>Price</th><th>Low</th><th>Value</th><th>Action</th></tr></thead><tbody id="invBody"></tbody></table>
+  </div>
+
+  <div class="module-actions">
+    <div class="small muted">Total Inventory Value: ₦<span id="invTotal">0</span></div>
+    <button id="exportInv" class="btn">⬇️ Export CSV</button>
+    <button id="resetInv" class="btn">🔄 Reset</button>
+  </div>
+</div>
+
+<script>
+(function init_inventory(){
+  const body = document.getElementById('invBody'), totalEl = document.getElementById('invTotal');
+  let items = JSON.parse(localStorage.getItem('mod_inventory')||'[]');
+  function render(){ body.innerHTML = items.map((it,i)=>`<tr><td>${it.name}</td><td>${it.qty}</td><td>${it.price}</td><td>${it.low}</td><td>${it.qty*it.price}</td><td><button onclick="delInv(${i})">Delete</button></td></tr>`).join(''); totalEl.innerText = items.reduce((s,it)=>s+ (it.qty*it.price),0); }
+  window.delInv = function(i){ items.splice(i,1); save(); }
+  function save(){ localStorage.setItem('mod_inventory',JSON.stringify(items)); render(); }
+  document.getElementById('addInv').addEventListener('click', ()=>{ const n=document.getElementById('inv_name').value, q=Number(document.getElementById('inv_qty').value||0), p=Number(document.getElementById('inv_price').value||0), l=Number(document.getElementById('inv_low').value||0); if(!n) return alert('Enter name'); items.push({name:n,qty:q,price:p,low:l}); save(); });
+  document.getElementById('exportInv').addEventListener('click', ()=>{ if(!items.length) return alert('No data'); const csv='Name,Qty,Price,Low\\n'+items.map(i=>`${i.name},${i.qty},${i.price},${i.low}`).join('\\n'); const b=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='inventory.csv'; a.click(); });
+  document.getElementById('resetInv').addEventListener('click', ()=>{ if(confirm('Reset inventory?')){ items=[]; save(); }});
+  render();
+})();
+</script>

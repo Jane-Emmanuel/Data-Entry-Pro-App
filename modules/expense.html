@@ -1,0 +1,49 @@
+<div class="module-card">
+  <h3>💰 Expense Tracker</h3>
+  <div class="form-row">
+    <input id="ex_date" type="date" />
+    <input id="ex_desc" placeholder="Description" />
+    <select id="ex_type"><option>Income</option><option>Expense</option></select>
+    <input id="ex_amount" type="number" placeholder="Amount" />
+    <button id="addExp" class="btn">➕ Add</button>
+  </div>
+
+  <div class="table-wrap">
+    <table id="expensesTable"><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Action</th></tr></thead><tbody id="expBody"></tbody></table>
+  </div>
+
+  <div class="module-actions">
+    <button id="exportExp" class="btn">⬇️ Export CSV</button>
+    <button id="resetExp" class="btn">🔄 Reset</button>
+  </div>
+</div>
+
+<script>
+  // init for expenses
+  (function init_expenses(){
+    const body = document.getElementById('expBody');
+    const tableId = 'expensesTable';
+    let items = JSON.parse(localStorage.getItem('mod_expenses')||'[]');
+
+    function render(){ body.innerHTML = items.map((it, i)=>`<tr><td>${it.date}</td><td>${it.desc}</td><td>${it.type}</td><td>${it.amount}</td><td><button onclick="deleteExp(${i})">Delete</button></td></tr>`).join(''); }
+
+    window.deleteExp = function(i){ items.splice(i,1); saveRender(); }
+    function saveRender(){ localStorage.setItem('mod_expenses', JSON.stringify(items)); render(); }
+
+    document.getElementById('addExp').addEventListener('click', ()=>{
+      const d=document.getElementById('ex_date').value, desc=document.getElementById('ex_desc').value, type=document.getElementById('ex_type').value, amt=document.getElementById('ex_amount').value;
+      if(!d||!desc||!amt) return alert('Fill fields');
+      items.push({date:d,desc:desc,type:type,amount:amt});
+      saveRender();
+    });
+
+    document.getElementById('exportExp').addEventListener('click', ()=>{
+      if(!items.length) return alert('No data');
+      const csv = 'Date,Description,Type,Amount\n' + items.map(i=>`${i.date},${i.desc},${i.type},${i.amount}`).join('\n');
+      const blob = new Blob([csv],{type:'text/csv'}), a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='expenses.csv'; a.click();
+    });
+
+    document.getElementById('resetExp').addEventListener('click', ()=>{ if(confirm('Reset expenses?')){ items=[]; saveRender(); }});
+    render();
+  })();
+</script>
