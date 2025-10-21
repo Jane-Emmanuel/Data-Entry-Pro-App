@@ -1,34 +1,232 @@
-<div class="module-card">
-  <h3>📦 Inventory Manager</h3>
-  <div class="form-row">
-    <input id="inv_name" placeholder="Item name" />
-    <input id="inv_qty" type="number" placeholder="Qty" />
-    <input id="inv_price" type="number" placeholder="Unit price" />
-    <input id="inv_low" type="number" placeholder="Low alert (e.g. 5)" />
-    <button id="addInv" class="btn">➕ Add</button>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Manager — Data Entry Pro</title>
+  <style>
+    :root {
+      --pink: #ff5faf;
+      --green: #36d399;
+      --blue: #4f46e5;
+      --dark: #0f172a;
+      --light: #f8fafc;
+    }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, var(--light), var(--pink), var(--blue), var(--green));
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--dark);
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-  <div class="table-wrap">
-    <table id="invTable"><thead><tr><th>Name</th><th>Qty</th><th>Price</th><th>Low</th><th>Value</th><th>Action</th></tr></thead><tbody id="invBody"></tbody></table>
-  </div>
+    header {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--light);
+      background: var(--dark);
+      border-bottom: 4px solid var(--pink);
+    }
 
-  <div class="module-actions">
-    <div class="small muted">Total Inventory Value: ₦<span id="invTotal">0</span></div>
-    <button id="exportInv" class="btn">⬇️ Export CSV</button>
-    <button id="resetInv" class="btn">🔄 Reset</button>
-  </div>
-</div>
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
 
-<script>
-(function init_inventory(){
-  const body = document.getElementById('invBody'), totalEl = document.getElementById('invTotal');
-  let items = JSON.parse(localStorage.getItem('mod_inventory')||'[]');
-  function render(){ body.innerHTML = items.map((it,i)=>`<tr><td>${it.name}</td><td>${it.qty}</td><td>${it.price}</td><td>${it.low}</td><td>${it.qty*it.price}</td><td><button onclick="delInv(${i})">Delete</button></td></tr>`).join(''); totalEl.innerText = items.reduce((s,it)=>s+ (it.qty*it.price),0); }
-  window.delInv = function(i){ items.splice(i,1); save(); }
-  function save(){ localStorage.setItem('mod_inventory',JSON.stringify(items)); render(); }
-  document.getElementById('addInv').addEventListener('click', ()=>{ const n=document.getElementById('inv_name').value, q=Number(document.getElementById('inv_qty').value||0), p=Number(document.getElementById('inv_price').value||0), l=Number(document.getElementById('inv_low').value||0); if(!n) return alert('Enter name'); items.push({name:n,qty:q,price:p,low:l}); save(); });
-  document.getElementById('exportInv').addEventListener('click', ()=>{ if(!items.length) return alert('No data'); const csv='Name,Qty,Price,Low\\n'+items.map(i=>`${i.name},${i.qty},${i.price},${i.low}`).join('\\n'); const b=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='inventory.csv'; a.click(); });
-  document.getElementById('resetInv').addEventListener('click', ()=>{ if(confirm('Reset inventory?')){ items=[]; save(); }});
-  render();
-})();
-</script>
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 2rem;
+      gap: 2rem;
+    }
+
+    .module-card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 380px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .module-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    h3 {
+      text-align: center;
+      color: var(--blue);
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    input, select {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ddd;
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--green);
+      color: var(--dark);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+    }
+
+    th {
+      background: var(--pink);
+      color: white;
+    }
+
+    .low-stock {
+      background: rgba(255, 95, 175, 0.15);
+      color: var(--pink);
+      font-weight: 600;
+    }
+
+    .module-actions {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: var(--light);
+      background: var(--dark);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Inventory Manager 📦</h1>
+  </header>
+
+  <main>
+    <!-- 📦 Inventory Tracker -->
+    <div class="module-card">
+      <h3>📦 Product Inventory</h3>
+      <div class="form-row">
+        <input id="inv_name" placeholder="Product Name" />
+        <input id="inv_qty" type="number" placeholder="Quantity" />
+        <input id="inv_price" type="number" placeholder="Price per Unit" />
+        <button id="addInv" class="btn">➕ Add</button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="inventoryTable">
+          <thead>
+            <tr>
+              <th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th>Status</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="invBody"></tbody>
+        </table>
+      </div>
+
+      <div class="module-actions">
+        <button id="exportInv" class="btn">⬇️ Export CSV</button>
+        <button id="resetInv" class="btn">🔄 Reset</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2025 Data Entry Pro by Jane Emmanuel</footer>
+
+  <script>
+    (function init_inventory(){
+      const body = document.getElementById('invBody');
+      let items = JSON.parse(localStorage.getItem('mod_inventory') || '[]');
+
+      function render() {
+        body.innerHTML = items.map((it, i) => {
+          const total = (it.qty * it.price).toFixed(2);
+          const lowStock = it.qty < 5 ? 'low-stock' : '';
+          return `
+            <tr class="${lowStock}">
+              <td>${it.name}</td>
+              <td>${it.qty}</td>
+              <td>₦${it.price}</td>
+              <td>₦${total}</td>
+              <td>${it.qty < 5 ? 'Low Stock ⚠️' : 'OK ✅'}</td>
+              <td><button onclick="deleteInv(${i})" class='btn'>🗑</button></td>
+            </tr>`;
+        }).join('');
+      }
+
+      window.deleteInv = function(i){
+        items.splice(i, 1);
+        saveRender();
+      }
+
+      function saveRender(){
+        localStorage.setItem('mod_inventory', JSON.stringify(items));
+        render();
+      }
+
+      document.getElementById('addInv').addEventListener('click', () => {
+        const name = document.getElementById('inv_name').value;
+        const qty = parseInt(document.getElementById('inv_qty').value);
+        const price = parseFloat(document.getElementById('inv_price').value);
+        if(!name || !qty || !price) return alert('Please fill all fields');
+        items.push({name, qty, price});
+        saveRender();
+      });
+
+      document.getElementById('exportInv').addEventListener('click', () => {
+        alert('🔒 Export feature is locked! Please unlock full access.');
+      });
+
+      document.getElementById('resetInv').addEventListener('click', () => {
+        if(confirm('Reset all inventory items?')) {
+          items = [];
+          saveRender();
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
